@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: quay-enterprise
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: quay-enterprise
+  name: quay-enterprise-config-secret
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: quay-enterprise
+  name: redhat-quay-pull-secret
+data:
+  .dockerconfigjson: ewogICJhdXRocyI6IHsKICAgICJxdWF5LmlvIjogewogICAgICAiYXV0aCI6ICJjbVZrYUdGMEszRjFZWGs2VHpneFYxTklVbE5LVWpFMFZVRmFRa3MxTkVkUlNFcFRNRkF4VmpSRFRGZEJTbFl4V0RKRE5GTkVOMHRQTlRsRFVUbE9NMUpGTVRJMk1USllWVEZJVWc9PSIsCiAgICAgICJlbWFpbCI6ICIiCiAgICB9CiAgfQp9
+type: kubernetes.io/dockerconfigjson
+
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: quay-storageclass
+parameters: 
+  type: gp2
+provisioner: kubernetes.io/aws-ebs
+reclaimPolicy: Delete
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-storage
+  namespace: quay-enterprise
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Gi 
+  storageClassName: quay-storageclass
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: quay-enterprise
+spec:
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: registry.access.redhat.com/rhscl/postgresql-10-rhel7:1-35
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          env:
+           - name: POSTGRESQL_USER
+            value: "username" 
+          - name: POSTGRESQL_DATABASE
+              value: "quay"
+            - name: POSTGRESQL_PASSWORD
+              value: "password" 
+            volumeMounts:
+              - mountPath: /var/lib/pgsql/data
+                name: postgredb
+            serviceAccount: postgres
+            serviceAccountName: postgres
+        volumes:
+          - name: postgredb
+            persistentVolumeClaim:
+              claimName: postgres-storage
+
