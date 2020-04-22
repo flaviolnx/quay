@@ -25,7 +25,7 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: quay-storageclass
-parameters: 
+parameters:
   type: gp2
 provisioner: kubernetes.io/aws-ebs
 reclaimPolicy: Delete
@@ -42,7 +42,7 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 5Gi 
+      storage: 5Gi
   storageClassName: quay-storageclass
 
 ---
@@ -52,7 +52,7 @@ metadata:
   name: postgres
   namespace: quay-enterprise
 spec:
-  replicas: 1 
+  replicas: 1 1
   template:
     metadata:
       labels:
@@ -65,19 +65,19 @@ spec:
           ports:
             - containerPort: 5432
           env:
-           - name: POSTGRESQL_USER
-            value: "username" 
+          - name: POSTGRESQL_USER
+            value: "username"
           - name: POSTGRESQL_DATABASE
-              value: "quay"
-            - name: POSTGRESQL_PASSWORD
-              value: "password" 
-            volumeMounts:
-              - mountPath: /var/lib/pgsql/data
-                name: postgredb
-            serviceAccount: postgres
-            serviceAccountName: postgres
-        volumes:
-          - name: postgredb
-            persistentVolumeClaim:
-              claimName: postgres-storage
-
+            value: "quay"
+          - name: POSTGRESQL_PASSWORD
+            value: "password"
+          volumeMounts:
+            - mountPath: /var/lib/pgsql/data
+              name: postgredb
+          serviceAccount: postgres
+          serviceAccountName: postgres
+      volumes:
+        - name: postgredb
+          persistentVolumeClaim:
+            claimName: postgres-storage
+---

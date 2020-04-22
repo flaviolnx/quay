@@ -1,0 +1,49 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    quay-enterprise-component: clair-scanner
+  name: clair-scanner
+  namespace: quay-enterprise
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      quay-enterprise-component: clair-scanner
+  template:
+    metadata:
+      labels:
+        quay-enterprise-component: clair-scanner
+      namespace: quay-enterprise
+    spec:
+      containers:
+      - image: quay.io/redhat/clair-jwt:v3.2.1
+        imagePullPolicy: IfNotPresent
+        name: clair-scanner
+        ports:
+        - containerPort: 6060
+          name: clair-api
+          protocol: TCP
+        - containerPort: 6061
+          name: clair-health
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /clair/config
+          name: configvolume
+        - mountPath: /etc/pki/ca-trust/source/anchors/ca.crt
+          name: quay-ssl
+          subPath: ca.crt
+      imagePullSecrets:
+      - name: redhat-quay-pull-secret
+      restartPolicy: Always
+      volumes:
+      - name: configvolume
+        secret:
+          secretName: clair-scanner-config-secret
+      - name: quay-ssl
+        secret:
+          defaultMode: 420
+          items:
+          - key: ssl.cert
+            path: ca.crt
+          secretName: quay-enterprise-config-secret
