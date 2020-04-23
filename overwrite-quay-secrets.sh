@@ -20,3 +20,4 @@ oc create secret generic quay-database-credential --from-literal=database-userna
 oc create secret generic quay-super-user --from-literal=superuser-username=quayadmin --from-literal=superuser-password=$QUAYSUPASS --from-literal=superuser-email=$QUAYSUMAIL
 oc create secret generic quay-config-app --from-literal=config-app-password=$QUAYCONFIGPASS
 oc create secret generic quay-redis-password --from-literal=password=$REDISPASS
+ oc create secret generic clair-database-credential --from-literal=database-username=clair --from-literal=database-password=password --from-literal=database-root-password=clairrootpass --from-literal=database-name=clair 

@@ -18,16 +18,25 @@ spec:
             - containerPort: 5432
           env:
           - name: POSTGRESQL_USER
-            value: "quay" 
+            valueFrom: 
+              secretKeyRef:
+                name: quay-database-credential
+                key: database-username
           - name: POSTGRESQL_DATABASE
-            value: "quay"
+            valueFrom: 
+              secretKeyRef:
+                name: quay-database-credential
+                key: database-name
           - name: POSTGRESQL_PASSWORD
-            value: "quaydbpass" 
+            valueFrom: 
+              secretKeyRef:
+                name: quay-database-credential
+                key: database-password
           volumeMounts:
             - mountPath: /var/lib/pgsql/data
               name: postgredb
-          serviceAccount: postgres
-          serviceAccountName: postgres
+      serviceAccount: postgres
+      serviceAccountName: postgres
       volumes:
         - name: postgredb
           persistentVolumeClaim:

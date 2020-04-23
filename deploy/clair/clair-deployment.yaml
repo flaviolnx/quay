@@ -34,7 +34,7 @@ spec:
           name: quay-ssl
           subPath: ca.crt
       imagePullSecrets:
-      - name: redhat-quay-pull-secret
+      - name: redhat-pull-secret
       restartPolicy: Always
       volumes:
       - name: configvolume

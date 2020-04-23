@@ -1,0 +1,49 @@
+  apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    labels:
+      app: postgres-clair
+    name: postgres-clair
+    namespace: quay-enterprise
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: postgres-clair
+    template:
+      metadata:
+        labels:
+          app: postgres-clair
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_USER
+            valueFrom: 
+              secretKeyRef:
+                name: clair-database-credential
+                key: database-username
+          - name: POSTGRESQL_DATABASE
+            valueFrom: 
+              secretKeyRef:
+                name: clair-database-credential
+                key: database-name
+          - name: POSTGRESQL_PASSWORD
+            valueFrom: 
+              secretKeyRef:
+                name: clair-database-credential
+                key: database-password
+          image: registry.redhat.io/rhel8/postgresql-10
+          imagePullPolicy: IfNotPresent
+          name: postgres-clair
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          volumeMounts:
+          - mountPath: /var/lib/pgsql/data
+            name: postgresdb
+        serviceAccount: postgres
+        serviceAccountName: postgres
+        volumes:
+        - name: postgresdb
+          persistentVolumeClaim:
+            claimName: postgres-storage-clair
