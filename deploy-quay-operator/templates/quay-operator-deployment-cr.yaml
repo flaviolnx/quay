@@ -8,7 +8,8 @@ spec:
     superuserCredentialsSecretName: quay-super-user
     configSecretName: quay-config-app
     deploymentStrategy: RollingUpdate
-    skipSetup: true
+#    skipSetup: false
+    keepConfigDeployment: true
     routeHost: quay.apps.myocp.sandbox664.opentlc.com
     configRouteHost: quay-config.apps.myocp.sandbox664.opentlc.com
 #   externalAccess:
@@ -31,7 +32,7 @@ spec:
       credentialsSecretName: quay-database-credential
     resources:
       requests:
-        memory: 5000Mi
+        memory: 500Mi
     envVars:
       - name: DEBUGLOG
         value: "true"
