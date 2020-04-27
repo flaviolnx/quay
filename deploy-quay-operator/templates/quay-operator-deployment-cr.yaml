@@ -48,8 +48,8 @@ spec:
         path: /health/instance
         port: 8443
         scheme: HTTPS
-#    nodeSelector:
-#      node-role.kubernetes.io/infra: true
+    nodeSelector:
+      node-role.kubernetes.io/infra: true
   redis:
     credentialsSecretName: quay-redis-password
     imagePullSecretName: redhat-pull-secret
